@@ -7,6 +7,8 @@ import SemanticNebula from './components/Visuals/SemanticNebula';
 import NeuralPulse from './components/Visuals/NeuralPulse';
 import HolographicCard from './components/UI/HolographicCard';
 import UploadZone from './components/UI/UploadZone';
+import ApiKeyModal from './components/Modals/ApiKeyModal';
+import PDFPreviewModal from './components/Modals/PDFPreviewModal';
 import { THEMES } from './constants';
 import { Palette } from 'lucide-react';
 
@@ -17,6 +19,8 @@ const Layout = () => {
   return (
     <div className="relative w-full h-screen flex overflow-hidden text-white">
       <Background />
+      <ApiKeyModal />
+      <PDFPreviewModal />
       
       {/* Loading Overlay */}
       {isProcessing && <NeuralPulse message={processingStage} />}

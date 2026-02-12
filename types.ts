@@ -6,6 +6,9 @@ export interface DocumentData {
   keywords: string[];
   risks?: string;
   analysisDate: number;
+  agentUsed?: string; // Name of the agent used
+  rawAnalysis?: string; // The full output
+  promptUsed?: string; // To keep track of the prompt
 }
 
 export type ThemeName = 'Monet' | 'VanGogh' | 'Dali' | 'Hokusai';
@@ -38,4 +41,13 @@ export interface Link {
 export interface GraphData {
   nodes: Node[];
   links: Link[];
+}
+
+export interface AgentProfile {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  systemInstruction: string;
+  category: 'Visualization' | 'Analysis' | 'Creative' | 'Critique' | 'Summary';
 }

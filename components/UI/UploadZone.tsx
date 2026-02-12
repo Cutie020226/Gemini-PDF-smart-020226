@@ -4,7 +4,7 @@ import { UploadCloud } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const UploadZone: React.FC = () => {
-  const { addDocument } = useApp();
+  const { stageDocument } = useApp();
   const { colors } = useTheme();
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -14,12 +14,12 @@ const UploadZone: React.FC = () => {
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
       if (file.type === 'application/pdf') {
-        addDocument(file);
+        stageDocument(file);
       } else {
         alert("Only PDF files are supported currently.");
       }
     }
-  }, [addDocument]);
+  }, [stageDocument]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -28,7 +28,7 @@ const UploadZone: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
-          addDocument(e.target.files[0]);
+          stageDocument(e.target.files[0]);
       }
   };
 

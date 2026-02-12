@@ -1,15 +1,48 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { AgentProfile } from '../types';
 
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
-
-// Helper to ensure we don't crash if no key (handle in UI)
-const checkKey = () => {
-  if (!apiKey) throw new Error("API Key missing");
+// Helper to check key
+const validateKey = (key: string) => {
+  if (!key) throw new Error("API Key missing. Please provide a valid Gemini API Key.");
+  return key;
 };
 
-export const analyzeDocumentStructure = async (text: string) => {
-  checkKey();
+export const runAgentAnalysis = async (apiKey: string, text: string, agent: AgentProfile) => {
+  const validKey = validateKey(apiKey);
+  // Create instance right before call with latest key
+  const ai = new GoogleGenAI({ apiKey: validKey });
+  
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `
+        TEXT TO ANALYZE:
+        ${text.substring(0, 30000)} ... [Truncated]
+
+        INSTRUCTIONS:
+        ${agent.systemInstruction}
+        
+        Provide the output in standard Markdown format.
+      `,
+      config: {
+          // If the agent is "Architect" (vis_1 equivalent logic), we might want JSON, 
+          // but for general agent flexibility, we stick to Markdown unless specified.
+          // For this specific app, we treat the 'Default Architect' logic separately in the context.
+          // This function is for the 31 custom agents.
+      }
+    });
+
+    return response.text;
+  } catch (error) {
+    console.error(`Agent ${agent.name} Error:`, error);
+    return `Agent failed to analyze: ${(error as Error).message}`;
+  }
+};
+
+export const analyzeDocumentStructure = async (apiKey: string, text: string) => {
+  const validKey = validateKey(apiKey);
+  const ai = new GoogleGenAI({ apiKey: validKey });
+
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -44,8 +77,10 @@ export const analyzeDocumentStructure = async (text: string) => {
   }
 };
 
-export const analyzeDocumentRisks = async (text: string) => {
-  checkKey();
+export const analyzeDocumentRisks = async (apiKey: string, text: string) => {
+  const validKey = validateKey(apiKey);
+  const ai = new GoogleGenAI({ apiKey: validKey });
+  
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -64,8 +99,10 @@ export const analyzeDocumentRisks = async (text: string) => {
   }
 };
 
-export const synthesizeDocuments = async (summaries: string[]) => {
-  checkKey();
+export const synthesizeDocuments = async (apiKey: string, summaries: string[]) => {
+  const validKey = validateKey(apiKey);
+  const ai = new GoogleGenAI({ apiKey: validKey });
+
   try {
     const joined = summaries.join("\n\n---\n\n");
     const response = await ai.models.generateContent({
@@ -79,10 +116,6 @@ export const synthesizeDocuments = async (summaries: string[]) => {
         Identify common themes and contradictions.
         Format with clear Markdown headers.
       `,
-      config: {
-        // Optional: thinking config could be added here for even deeper analysis
-        // thinkingConfig: { thinkingBudget: 1024 }
-      }
     });
     return response.text;
   } catch (error) {
